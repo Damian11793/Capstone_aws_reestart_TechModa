@@ -63,22 +63,39 @@ El flujo de esta sesión:
 
 ## 🚶 Paso a paso
 
-1. Habilitá el modelo de embeddings en la consola de Bedrock.
+1. Habilitá el modelo de embeddings en la consola de Bedrock (Amazon Titan Text Embeddings V2, us-east-1).
 2. Pegá las **dos** funciones (`IndexEmbeddings`, `SemanticSearch`), cada una con sus `Policies:` + su `FunctionUrlConfig`, y sus outputs `IndexEmbeddingsUrl` y `SemanticSearchUrl`. Fijate que `SemanticSearch` lleva `DynamoDBReadPolicy` y no `Crud`: sólo lee el catálogo.
-3. `sam build && sam deploy`.
+3. `sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --resolve-s3 --no-confirm-changeset`.
 4. **Indexar** el catálogo (Function URL de `IndexEmbeddings`):
+
+**Template genérico:**
 ```bash
-INDEX_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+INDEX_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='IndexEmbeddingsUrl'].OutputValue" --output text)
 curl -s -X POST "${INDEX_URL%/}/search/index" | python3 -m json.tool
-# {"indexed": 4, "skipped": 0, "total": 4, "model": "amazon.titan-embed-text-v2:0"}
 ```
+
+**Resultado esperado:**
+```json
+{"indexed": 4, "skipped": 0, "total": 4, "model": "amazon.titan-embed-text-v2:0"}
+```
+
 5. **Buscar** semánticamente (Function URL de `SemanticSearch`):
+
+**Template genérico:**
 ```bash
-SEARCH_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+SEARCH_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='SemanticSearchUrl'].OutputValue" --output text)
 curl -s "${SEARCH_URL%/}/search?q=algo%20abrigado%20para%20el%20invierno" | python3 -m json.tool
 ```
+
+**Consulta 1: "algo abrigado para el invierno"**
+```bash
+SEARCH_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='SemanticSearchUrl'].OutputValue" --output text)
+curl -s "${SEARCH_URL%/}/search?q=algo%20abrigado%20para%20el%20invierno" | python3 -m json.tool
+```
+
 Resultado esperado (la chaqueta primero, aunque la consulta no diga "chaqueta"):
 ```json
 {
@@ -89,7 +106,22 @@ Resultado esperado (la chaqueta primero, aunque la consulta no diga "chaqueta"):
   ]
 }
 ```
-6. Probá consultas variadas: *"zapatos para caminar"*, *"regalo elegante"*. Observá el ranking por `score`.
+
+**Consulta 2: "ropa cómoda y ligera"**
+```bash
+SEARCH_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='SemanticSearchUrl'].OutputValue" --output text)
+curl -s "${SEARCH_URL%/}/search?q=ropa%20cómoda%20y%20ligera" | python3 -m json.tool
+```
+
+**Consulta 3: "accesorios elegantes"**
+```bash
+SEARCH_URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='SemanticSearchUrl'].OutputValue" --output text)
+curl -s "${SEARCH_URL%/}/search?q=accesorios%20elegantes" | python3 -m json.tool
+```
+
+6. Observá que diferentes consultas devuelven top 5 ordenados por `score` descendente. La **búsqueda semántica** encuentra productos aunque no contengan la palabra exacta de la consulta.
 
 ---
 

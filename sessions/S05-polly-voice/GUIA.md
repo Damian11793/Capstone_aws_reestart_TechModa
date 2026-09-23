@@ -51,24 +51,36 @@ de ciclo de vida que **borra el audio a los 7 días** (FinOps).
 ## 🚶 Paso a paso
 
 1. Pegá `AudioBucket` + `SynthesizeVoiceFunction` (trae sus `Policies:` — incluido el `S3CrudPolicy` sobre el bucket nuevo — + su `FunctionUrlConfig`) + el output `SynthesizeVoiceUrl` desde el snippet.
-2. `sam build && sam deploy`.
+2. `sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --resolve-s3 --no-confirm-changeset`.
 3. Generá audio en español (Function URL de esta función; el productId va en path o body):
+
+**Template genérico:**
 ```bash
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='SynthesizeVoiceUrl'].OutputValue" --output text)
 curl -s -X POST "${URL%/}/products/PRODUCT_ID/voice" \
   -H "Content-Type: application/json" -d '{"lang":"es"}' | python3 -m json.tool
 ```
-Respuesta:
+
+**Con el producto real:**
+```bash
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='SynthesizeVoiceUrl'].OutputValue" --output text)
+curl -s -X POST "${URL%/}/products/8e701adc-af8d-4882-994d-6e2237e98ec4/voice" \
+  -H "Content-Type: application/json" -d '{"lang":"es"}' | python3 -m json.tool
+```
+
+Respuesta esperada:
 ```json
 {
-  "productId": "a1b2...",
+  "productId": "8e701adc-af8d-4882-994d-6e2237e98ec4",
   "lang": "es",
   "voice": "Lupe",
-  "audioUrl": "https://techmoda-ai-audio.s3.amazonaws.com/audio/a1b2-es.mp3?X-Amz-...",
+  "audioUrl": "https://techmoda-ai-jorge-damian-diaz-v2-audio.s3.amazonaws.com/audio/8e701adc-af8d-4882-994d-6e2237e98ec4-es.mp3?X-Amz-...",
   "expiresIn": 3600
 }
 ```
+
 4. Abrí el `audioUrl` en el navegador → debería **reproducir** la descripción.
 
 ---

@@ -31,16 +31,14 @@ const { handler: getItem } = require('../get-item/index.js');
 const { handler: updateItem } = require('../update-item/index.js');
 const { handler: deleteItem } = require('../delete-item/index.js');
 
-const CORS_HEADERS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-};
-
 const json = (statusCode, payload) => ({
   statusCode,
-  headers: CORS_HEADERS,
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  },
   body: JSON.stringify(payload),
 });
 
@@ -54,12 +52,6 @@ exports.handler = async (event) => {
   let path =
     event?.rawPath || event?.requestContext?.http?.path || event?.path || '/';
   path = path.replace(/\/{2,}/g, '/').replace(/\/+$/, '') || '/';
-
-  // CORS preflight (la Function URL ya lo maneja si Cors está configurado, pero
-  // respondemos por las dudas para invocaciones directas).
-  if (method === 'OPTIONS') {
-    return { statusCode: 204, headers: CORS_HEADERS, body: '' };
-  }
 
   const segments = path.split('/').filter(Boolean); // ['products'] | ['products','<id>']
   const id = segments[1];

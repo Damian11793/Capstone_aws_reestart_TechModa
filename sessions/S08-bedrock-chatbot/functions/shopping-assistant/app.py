@@ -29,12 +29,14 @@ EMBED_MODEL_ID = os.environ.get("EMBED_MODEL_ID", "amazon.titan-embed-text-v2:0"
 CHAT_MODEL_ID = os.environ.get("BEDROCK_MODEL_ID", "us.anthropic.claude-haiku-4-5-20251001-v1:0")
 TOP_K = int(os.environ.get("ASSISTANT_TOP_K", "3"))
 MAX_TOKENS = int(os.environ.get("BEDROCK_MAX_TOKENS", "400"))
+GUARDRAIL_ID = os.environ.get("BEDROCK_GUARDRAIL_ID")
+GUARDRAIL_VERSION = os.environ.get("BEDROCK_GUARDRAIL_VERSION", "DRAFT")
 
 SYSTEM_PROMPT = (
-    "Sos el asistente de compras de TechModa, una tienda de moda. Respondé en español, "
+    "Eres el asistente de compras de TechModa, una tienda de moda. Respondé en español neutral, "
     "amable y conciso. Recomendá ÚNICAMENTE productos del CATÁLOGO que se te entrega como "
-    "contexto; si nada encaja, decílo con honestidad y sugerí refinar la búsqueda. No "
-    "inventes productos, precios ni características que no estén en el contexto."
+    "contexto; si nada encaja, decirlo con honestidad y sugerir refinar la búsqueda. No "
+    "inventes productos, precios ni características que no estén en el contexto. Se amable en todo momento con el cliente"
 )
 
 bedrock = boto3.client("bedrock-runtime")
@@ -114,6 +116,19 @@ def _build_messages(history, message, context_block):
 
 def lambda_handler(event, context):
     print("Event:", json.dumps(event))
+
+    # Handle CORS preflight
+    if event.get("requestContext", {}).get("http", {}).get("method") == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST, OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+            "body": ""
+        }
+
     try:
         body = json.loads(event.get("body") or "{}")
     except json.JSONDecodeError:
@@ -128,12 +143,18 @@ def lambda_handler(event, context):
         products = _retrieve(message, TOP_K)
         context_block = _format_context(products)
         messages = _build_messages(history, message, context_block)
-        resp = bedrock.converse(
-            modelId=CHAT_MODEL_ID,
-            system=[{"text": SYSTEM_PROMPT}],
-            messages=messages,
-            inferenceConfig={"maxTokens": MAX_TOKENS, "temperature": 0.5},
-        )
+        kwargs = {
+            "modelId": CHAT_MODEL_ID,
+            "system": [{"text": SYSTEM_PROMPT}],
+            "messages": messages,
+            "inferenceConfig": {"maxTokens": MAX_TOKENS, "temperature": 0.5},
+        }
+        if GUARDRAIL_ID:
+            kwargs["guardrailConfig"] = {
+                "guardrailIdentifier": GUARDRAIL_ID,
+                "guardrailVersion": GUARDRAIL_VERSION,
+            }
+        resp = bedrock.converse(**kwargs)
         reply = resp["output"]["message"]["content"][0]["text"].strip()
         usage = resp.get("usage", {})
     except Exception as e:  # noqa: BLE001

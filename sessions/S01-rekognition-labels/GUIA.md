@@ -70,13 +70,15 @@ Abrí `sessions/S01-rekognition-labels/template-snippet.yaml` y:
 
 ### 2. Construir y desplegar
 ```bash
-sam build && sam deploy
+sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
+  --resolve-s3 --no-confirm-changeset
 ```
 
 ### 3. Ejecutar
 ```bash
 # URL = Function URL de esta función (output EnrichLabelsUrl); ${URL%/} quita la barra final.
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='EnrichLabelsUrl'].OutputValue" --output text)
 
 # Reemplazá PRODUCT_ID por el productId de un producto con imagen real.
@@ -101,7 +103,7 @@ Respuesta esperada (ejemplo):
 ### 4. Ver el enriquecimiento en DynamoDB
 ```bash
 aws dynamodb get-item --region us-east-1 \
-  --table-name techmoda-ai-Products \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
   --key '{"productId":{"S":"PRODUCT_ID"}}' \
   --query 'Item.aiLabels'
 ```

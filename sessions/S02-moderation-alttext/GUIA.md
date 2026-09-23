@@ -60,23 +60,50 @@ imágenes, y aquí lo automatizamos.
 ## 🚶 Paso a paso
 
 1. Pegá `ModerateImageFunction` (trae sus `Policies:` + su `FunctionUrlConfig`) y el output `ModerateImageUrl` desde `template-snippet.yaml`.
-2. `sam build && sam deploy`.
+2. `sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --resolve-s3 --no-confirm-changeset`.
 3. Ejecutá (usá la Function URL de esta función; el productId va en el path o en el body):
+
+**Template genérico:**
 ```bash
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='ModerateImageUrl'].OutputValue" --output text)
 curl -s -X POST "${URL%/}/products/PRODUCT_ID/moderate" | python3 -m json.tool
 ```
+
+**Con el producto real:**
+```bash
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='ModerateImageUrl'].OutputValue" --output text)
+curl -s -X POST "${URL%/}/products/8e701adc-af8d-4882-994d-6e2237e98ec4/moderate" | python3 -m json.tool
+```
+
 Respuesta esperada para una foto de moda normal:
 ```json
 {
-  "productId": "a1b2...",
+  "productId": "8e701adc-af8d-4882-994d-6e2237e98ec4",
   "moderationStatus": "APPROVED",
   "moderationFlags": [],
-  "altText": "Imagen de producto que muestra: Clothing, Dress, Person, Floral Design, Sleeve."
+  "altText": "Imagen de producto que muestra: Animal, Insect, Invertebrate, Ant."
 }
 ```
-4. Verificá en DynamoDB que el producto tiene `moderationStatus` y `altText`.
+
+4. Verificá en DynamoDB que el producto tiene `moderationStatus` y `altText`:
+
+**Template genérico:**
+```bash
+aws dynamodb get-item --region us-east-1 \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
+  --key '{"productId":{"S":"PRODUCT_ID"}}' \
+  --query 'Item | {moderationStatus: moderationStatus, altText: altText}'
+```
+
+**Con el producto real:**
+```bash
+aws dynamodb get-item --region us-east-1 \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
+  --key '{"productId":{"S":"8e701adc-af8d-4882-994d-6e2237e98ec4"}}' \
+  --query 'Item | {moderationStatus: moderationStatus, altText: altText}'
+```
 
 ---
 

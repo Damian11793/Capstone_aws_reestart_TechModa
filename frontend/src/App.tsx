@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Store, Settings, Search, Plus, Loader2 } from 'lucide-react';
 import { ProductCard } from './components/ProductCard';
 import { ProductModal } from './components/ProductModal';
+import { ChatBot } from './components/ChatBot';
 import { useProducts } from './hooks/useProducts';
 import type { Product } from './lib/types';
 
@@ -50,8 +51,8 @@ function App() {
   };
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (product.name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+      (product.description?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesCategory = categoryFilter === 'Todos' || product.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
@@ -172,6 +173,9 @@ function App() {
           </p>
         </div>
       </footer>
+
+      {/* ChatBot */}
+      <ChatBot />
     </div>
   );
 }

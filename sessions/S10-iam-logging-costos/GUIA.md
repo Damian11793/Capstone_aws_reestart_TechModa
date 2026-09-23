@@ -83,7 +83,13 @@ A lo largo del proyecto aplicamos un patrón consistente. Repasalo, porque **es 
    aws bedrock get-model-invocation-logging-configuration --region us-east-1
    ```
 4. **Ver costos atribuidos:** activá los cost allocation tags en Billing → Cost Allocation Tags y revisá
-   Cost Explorer filtrando por `Project=techmoda-ai-capstone`.
+   Cost Explorer filtrando por `Project=techmoda-ai-jorge-damian-diaz-v2`.
+5. **Verificar el rol generado:**
+   ```bash
+   aws lambda get-function-configuration --function-name techmoda-ai-jorge-damian-diaz-v2-ShoppingAssistant --region us-east-1 --query Role --output text
+   # Después inspeccionar la policy inline:
+   aws iam list-role-policies --role-name <ese-rol-de-arriba>
+   ```
 
 ---
 

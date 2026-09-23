@@ -73,7 +73,7 @@ SAM empaqueta el router CRUD (Node.js) y valida el `template.yaml`.
 ### 3. Desplegar
 ```bash
 # atajo: bash scripts/deploy.sh
-sam deploy --stack-name techmoda-ai --region us-east-1 \
+sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
   --resolve-s3 --no-confirm-changeset
 ```

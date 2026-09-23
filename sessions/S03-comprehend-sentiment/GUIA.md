@@ -53,10 +53,10 @@ Flujo de esta sesión (y por qué importa para el examen):
 ## 🚶 Paso a paso
 
 1. Pegá `AnalyzeSentimentFunction` (trae sus `Policies:` + su `FunctionUrlConfig`) y el output `AnalyzeSentimentUrl` desde `template-snippet.yaml`.
-2. `sam build && sam deploy`.
+2. `sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --resolve-s3 --no-confirm-changeset`.
 3. Obtené la Function URL de esta función y probá un texto suelto:
 ```bash
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='AnalyzeSentimentUrl'].OutputValue" --output text)
 curl -s -X POST "${URL%/}/sentiment" \
   -H "Content-Type: application/json" \
@@ -64,10 +64,25 @@ curl -s -X POST "${URL%/}/sentiment" \
   | python3 -m json.tool
 ```
 4. Probá varias reseñas y guardalas en un producto:
+**Template genérico:**
 ```bash
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='AnalyzeSentimentUrl'].OutputValue" --output text)
 curl -s -X POST "${URL%/}/sentiment" \
   -H "Content-Type: application/json" \
   -d '{"productId":"PRODUCT_ID","reviews":[
+        "Excelente calidad, súper recomendada.",
+        "Buena pero el envío tardó tres semanas."]}' \
+  | python3 -m json.tool
+```
+
+**Con el producto real:**
+```bash
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='AnalyzeSentimentUrl'].OutputValue" --output text)
+curl -s -X POST "${URL%/}/sentiment" \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"8e701adc-af8d-4882-994d-6e2237e98ec4","reviews":[
         "Excelente calidad, súper recomendada.",
         "Buena pero el envío tardó tres semanas."]}' \
   | python3 -m json.tool
@@ -84,7 +99,23 @@ Respuesta esperada:
   ]
 }
 ```
-5. Verificá en DynamoDB que el producto tiene `reviewSentiment` y `reviewSentimentCounts`.
+5. Verificá en DynamoDB que el producto tiene `reviewSentiment` y `reviewSentimentCounts`:
+
+**Template genérico:**
+```bash
+aws dynamodb get-item --region us-east-1 \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
+  --key '{"productId":{"S":"PRODUCT_ID"}}' \
+  --query 'Item | {reviewSentiment: reviewSentiment, reviewSentimentCounts: reviewSentimentCounts}'
+```
+
+**Con el producto real:**
+```bash
+aws dynamodb get-item --region us-east-1 \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
+  --key '{"productId":{"S":"8e701adc-af8d-4882-994d-6e2237e98ec4"}}' \
+  --query 'Item | {reviewSentiment: reviewSentiment, reviewSentimentCounts: reviewSentimentCounts}'
+```
 
 ---
 

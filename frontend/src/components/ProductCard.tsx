@@ -21,22 +21,22 @@ export function ProductCard({ product, onEdit, onDelete, isAdmin }: ProductCardP
       <div className="p-5">
         <div className="flex items-start justify-between mb-2">
           <h3 className="text-lg font-semibold text-gray-900 line-clamp-1">
-            {product.name}
+            {product.name || 'Sin nombre'}
           </h3>
           <span className="text-xs px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-medium">
-            {product.category}
+            {product.category || 'Sin categoría'}
           </span>
         </div>
         <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-          {product.description}
+          {product.description || 'Sin descripción'}
         </p>
         <div className="flex items-center justify-between mb-4">
           <span className="text-2xl font-bold text-gray-900">
-            ${product.price.toFixed(2)}
+            ${(product.price || 0).toFixed(2)}
           </span>
           <div className="flex items-center gap-1 text-sm text-gray-500">
             <Package className="w-4 h-4" />
-            <span>{product.stock} disponibles</span>
+            <span>{product.stock ?? 0} disponibles</span>
           </div>
         </div>
         {isAdmin ? (
@@ -56,15 +56,15 @@ export function ProductCard({ product, onEdit, onDelete, isAdmin }: ProductCardP
           </div>
         ) : (
           <button
-            disabled={product.stock === 0}
+            disabled={(product.stock ?? 0) === 0}
             className={`w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
-              product.stock === 0
+              (product.stock ?? 0) === 0
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
             <ShoppingCart className="w-4 h-4" />
-            {product.stock === 0 ? 'Agotado' : 'Agregar al Carrito'}
+            {(product.stock ?? 0) === 0 ? 'Agotado' : 'Agregar al Carrito'}
           </button>
         )}
       </div>

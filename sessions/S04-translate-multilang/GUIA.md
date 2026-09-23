@@ -46,12 +46,22 @@ Ideas que el examen evalúa:
 ## 🚶 Paso a paso
 
 1. Pegá `TranslateCatalogFunction` (trae sus `Policies:` + su `FunctionUrlConfig`) y el output `TranslateCatalogUrl` desde el snippet.
-2. `sam build && sam deploy`.
+2. `sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --resolve-s3 --no-confirm-changeset`.
 3. Traducí un producto al inglés (Function URL de esta función; el productId va en path o body):
+
+**Template genérico:**
 ```bash
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='TranslateCatalogUrl'].OutputValue" --output text)
 curl -s -X POST "${URL%/}/products/PRODUCT_ID/translate" \
+  -H "Content-Type: application/json" -d '{"target":"en"}' | python3 -m json.tool
+```
+
+**Con el producto real:**
+```bash
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='TranslateCatalogUrl'].OutputValue" --output text)
+curl -s -X POST "${URL%/}/products/8e701adc-af8d-4882-994d-6e2237e98ec4/translate" \
   -H "Content-Type: application/json" -d '{"target":"en"}' | python3 -m json.tool
 ```
 Respuesta esperada:
@@ -65,7 +75,23 @@ Respuesta esperada:
   }
 }
 ```
-4. Verificá en DynamoDB el mapa anidado `translations.en`.
+4. Verificá en DynamoDB el mapa anidado `translations.en`:
+
+**Template genérico:**
+```bash
+aws dynamodb get-item --region us-east-1 \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
+  --key '{"productId":{"S":"PRODUCT_ID"}}' \
+  --query 'Item.translations'
+```
+
+**Con el producto real:**
+```bash
+aws dynamodb get-item --region us-east-1 \
+  --table-name techmoda-ai-jorge-damian-diaz-v2-Products \
+  --key '{"productId":{"S":"8e701adc-af8d-4882-994d-6e2237e98ec4"}}' \
+  --query 'Item.translations'
+```
 
 ---
 

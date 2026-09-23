@@ -7,7 +7,7 @@
 # S9 · Guardrails, sesgo y privacidad en las features de IA (Bedrock Guardrails)
 
 **Duración:** ~60 min · **Servicio:** Amazon Bedrock Guardrails · **Dominio AIF-C01:** **D4 — Responsible AI (14%)**
-**Estado:** 🟡 Guía detallada + scaffold (config + script listos; el cableado a converse lo completás en la sesión).
+**Estado:** 🟡 Guía  detallada + scaffold (config + script listos; el cableado a converse lo completás en la sesión).
 
 > 🔌 **Cómo se expone:** el guardrail protege la función del asistente de S8, que tiene su propia
 > **Lambda Function URL** (no API Gateway) y su **rol de mínimo privilegio creado por SAM** — ver
@@ -102,7 +102,7 @@ Y en el `template.yaml`, agregá a esas funciones:
 ### 3. Probar que filtra
 ```bash
 # Function URL del asistente (output ShoppingAssistantUrl de S8):
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='ShoppingAssistantUrl'].OutputValue" --output text)
 # Intento fuera de dominio / con PII → el guardrail debe intervenir:
 curl -s -X POST "${URL%/}/assistant" -H "Content-Type: application/json" \

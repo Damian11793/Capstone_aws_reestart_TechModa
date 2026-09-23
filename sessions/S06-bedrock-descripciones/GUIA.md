@@ -63,19 +63,31 @@ entrenar/alojar tus propios modelos**. Para "generar texto sin entrenar nada" �
 
 1. Habilitá el acceso al modelo en la consola de Bedrock (ver prerequisitos).
 2. Pegá `GenerateDescriptionFunction` (trae sus `Policies:` — `bedrock:InvokeModel` acotado por ARN de modelo — + su `FunctionUrlConfig`) + el output `GenerateDescriptionUrl` desde el snippet.
-3. `sam build && sam deploy`.
+3. `sam build && sam deploy --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND --resolve-s3 --no-confirm-changeset`.
 4. Generá una descripción (Function URL de esta función; el productId va en path o body):
+
+**Template genérico:**
 ```bash
-URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai --region us-east-1 \
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
   --query "Stacks[0].Outputs[?OutputKey=='GenerateDescriptionUrl'].OutputValue" --output text)
 curl -s -X POST "${URL%/}/products/PRODUCT_ID/describe" \
   -H "Content-Type: application/json" \
   -d '{"tone":"elegante y aspiracional","save":true}' | python3 -m json.tool
 ```
+
+**Con el producto real:**
+```bash
+URL=$(aws cloudformation describe-stacks --stack-name techmoda-ai-jorge-damian-diaz-v2 --region us-east-1 \
+  --query "Stacks[0].Outputs[?OutputKey=='GenerateDescriptionUrl'].OutputValue" --output text)
+curl -s -X POST "${URL%/}/products/8e701adc-af8d-4882-994d-6e2237e98ec4/describe" \
+  -H "Content-Type: application/json" \
+  -d '{"tone":"elegante y aspiracional","save":true}' | python3 -m json.tool
+```
+
 Respuesta esperada:
 ```json
 {
-  "productId": "a1b2...",
+  "productId": "8e701adc-af8d-4882-994d-6e2237e98ec4",
   "model": "us.anthropic.claude-haiku-4-5-20251001-v1:0",
   "tone": "elegante y aspiracional",
   "saved": true,
@@ -83,6 +95,7 @@ Respuesta esperada:
   "usage": {"inputTokens": 95, "outputTokens": 64, "totalTokens": 159}
 }
 ```
+
 5. Probá **distintos tonos** ("divertido y juvenil", "minimalista") y compará. Cambiá `temperature` (env) y observá la variación.
 
 ---
