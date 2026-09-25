@@ -25,6 +25,228 @@ El chatbot integra **6 servicios de IA** en un único flujo RAG conversacional:
 
 ---
 
+## 🏢 Arquitectura AWS Completa
+
+### Stack de Servicios AWS Utilizados
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                                   INTERNET / USUARIO                             │
+└────────────────────────────────────┬─────────────────────────────────────────────┘
+                                     │
+                    ┌────────────────┴────────────────┐
+                    │                                 │
+                    ▼                                 ▼
+        ┌───────────────────────┐          ┌──────────────────────┐
+        │   CloudFront (CDN)    │          │ Lambda Function URLs │
+        │   S3 Website Hosting  │          │   (8 endpoints IA)   │
+        │  techmoda.s3.com/     │          │   (1 CRUD router)    │
+        └───────────┬───────────┘          └──────────┬───────────┘
+                    │                                 │
+        ┌───────────▼───────────┐          ┌──────────▼───────────┐
+        │     S3 Bucket         │          │   IAM Roles          │
+        │  ├─ index.html        │          │   (1 por Lambda)     │
+        │  ├─ React app (SPA)   │          │   Mínimo privilegio  │
+        │  ├─ CSS/JS/Assets     │          │                      │
+        │  ├─ Images (9 prod.)  │          │   ec2:None           │
+        │  └─ Audio (Polly)     │          │   rds:None           │
+        └───────────────────────┘          │   root:None          │
+                                           └──────────────────────┘
+                                                     │
+                ┌────────────────────────────────────┼────────────────────────────────┐
+                │                                    │                                │
+                ▼                                    ▼                                ▼
+        ┌─────────────────┐              ┌──────────────────────┐          ┌──────────────────┐
+        │   DynamoDB      │              │   Lambda Funciones   │          │   AI Services    │
+        │   (Tablas)      │              │      (Python 3.12)   │          │    (AWS)         │
+        ├─ Products       │              ├─ S00: Router (Node)  │          ├─ Bedrock         │
+        ├─ Chats          │              ├─ S01: Rekognition    │          │  (Claude Haiku)  │
+        ├─ Embeddings     │              ├─ S02: Moderation     │          ├─ Rekognition     │
+        ├─ Translations   │              ├─ S03: Comprehend     │          │  (Detect Labels) │
+        └─ Metadata       │              ├─ S04: Translate      │          ├─ Comprehend      │
+                          │              ├─ S05: Polly          │          │  (Sentiment)     │
+                          │              ├─ S06: Description *  │          ├─ Translate       │
+        ┌─────────────────┐              ├─ S07: Search/Embed*  │          │  (Neural MT)     │
+        │  S3 Audio Bin   │              ├─ S08: ChatBot *      │          ├─ Polly           │
+        │  (Polly output) │              └─ (+ S09-S11 futures) │          │  (Voice Synthesis)
+        │  7 días TTL     │                       *Converse API  │          └──────────────────┘
+        └─────────────────┘                                      │
+                                                                 │
+                            ┌────────────────────────────────────┘
+                            │
+                ┌───────────┬┴────┬──────────────────────────────────┐
+                │           │     │                                  │
+                ▼           ▼     ▼                                  ▼
+        ┌──────────────┐ ┌──────────┐ ┌───────────┐ ┌──────────────────┐
+        │   Bedrock    │ │Rekognit- │ │Comprehend │ │  Translate +     │
+        │              │ │ion       │ │           │ │  Polly           │
+        │ Models:      │ │          │ │ ├─ Sentiment   │ ├─ ES/EN      │
+        │ - Claude     │ │ ├─ Labels│ │ ├─ Language    │ ├─ Neural     │
+        │   Haiku 4.5  │ │ ├─ Moderat│ │ └─ Entities   │ └─ MP3 Audio  │
+        │ - Titan      │ │ └─ bbox  │ │          │ │                  │
+        │   Embeddings │ │          │ │          │ │  Voice:          │
+        │              │ │API Calls:│ │ Max 100  │ │  - Lucia (ES)    │
+        │ Features:    │ │ • S01    │ │   units  │ │  - Lola (ES alt) │
+        │ • Tokens     │ │ • S02    │ │ per req  │ │  - Arthur (EN)   │
+        │ • Streaming  │ │ • S08    │ │          │ │  - Engine: neural│
+        │ • Inference  │ │          │ │          │ │                  │
+        └──────────────┘ └──────────┘ └───────────┘ └──────────────────┘
+         (Tokens + Inference        (Vision Labels)  (NLP + Text-to-Speech)
+          Profiles)                (Content Safety)
+```
+
+### Flujo de Datos: Capa por Capa
+
+```
+CAPA 1: FRONTEND (Browser)
+┌─────────────────────────────────────────────────────┐
+│ React SPA (Vite)                                    │
+│ ├─ src/pages/Chat.tsx (S08 interface)             │
+│ ├─ src/pages/Catalog.tsx (S00 product list)       │
+│ ├─ src/lib/api.ts (HTTP client)                   │
+│ └─ Fetch: ApiUrl variable desde env-config.js     │
+└──────────────────┬──────────────────────────────────┘
+                   │ HTTP/HTTPS
+                   ▼
+CAPA 2: CDN + HOSTING (AWS)
+┌─────────────────────────────────────────────────────┐
+│ CloudFront (HTTPS, Cache, Global)                  │
+│   ↓ Serves static assets                           │
+│ S3 Bucket (Website Endpoint)                       │
+│ ├─ index.html (SPA entry point)                    │
+│ ├─ app-*.js (React bundle)                         │
+│ └─ assets/ (images, audio)                         │
+└──────────────────┬──────────────────────────────────┘
+                   │ API Call to Lambda URL
+                   ▼
+CAPA 3: API (Serverless)
+┌─────────────────────────────────────────────────────┐
+│ Lambda Function URLs (9 total)                      │
+│                                                     │
+│ ┌─ S00: CRUD Router (Node.js 22)                  │
+│ │  ├─ GET /products → listItems()                  │
+│ │  ├─ POST /products → createItem()                │
+│ │  └─ PUT /products/{id} → updateItem()            │
+│ │                                                  │
+│ └─ S01-S08: IA Services (Python 3.12)             │
+│    ├─ S01: POST /products/{id}/enrich-labels      │
+│    ├─ S02: POST /products/{id}/moderate-image     │
+│    ├─ S03: POST /products/{id}/analyze-sentiment  │
+│    ├─ S04: POST /products/{id}/translate          │
+│    ├─ S05: POST /synthesize-voice                 │
+│    ├─ S06: POST /products/{id}/describe           │
+│    ├─ S07: POST /search (+ POST /search/index)    │
+│    └─ S08: POST /assistant (main chatbot)         │
+│                                                     │
+│ AuthType: NONE | CORS: * | Timeout: 30-60s        │
+└──────────────────┬──────────────────────────────────┘
+                   │
+         ┌─────────┼──────────┐
+         │         │          │
+         ▼         ▼          ▼
+CAPA 4: DATOS + COMPUTACIÓN
+┌──────────┐  ┌──────────┐  ┌────────────────────┐
+│ DynamoDB │  │ Lambda   │  │ IAM (por función)  │
+│ (Schemas)│  │ Execution│  │                    │
+├──────────┤  │ Role     │  │ Policies:          │
+│Products  │  │          │  │ • dynamodb:*       │
+│├─ PK: id │  │ Memory:  │  │ • bedrock:*        │
+│├─ name   │  │ 256-512  │  │ • rekognition:*    │
+│├─ price  │  │ MB       │  │ • comprehend:*     │
+│├─ image  │  │          │  │ • translate:*      │
+│├─ stock  │  │ Env Vars │  │ • polly:*          │
+│├─ embed  │  │          │  │ • s3:GetObject     │
+│└─ labels │  │ MODEL_ID │  │ • s3:PutObject     │
+│          │  │ REGION   │  │ • logs:CreateLog   │
+│Chats     │  │ TABLE    │  │                    │
+│├─ PK: id │  │          │  │ No: EC2, RDS, IAM- │
+│├─ user   │  │          │  │      Admin         │
+│└─ msgs[] │  │          │  │                    │
+│          │  │          │  │                    │
+│Embeddings│  │          │  │                    │
+│(vector)  │  │          │  │                    │
+└──────────┘  └──────────┘  └────────────────────┘
+         │
+         └────────────────────┐
+                              │
+CAPA 5: IA SERVICES (AWS AI)  ▼
+┌────────────────────────────────────┐
+│ Amazon Bedrock                     │
+│ ├─ Claude Haiku 4.5 (Converse API)│
+│ │  ├─ S06: Generate descriptions  │
+│ │  └─ S08: Chat responses         │
+│ └─ Titan Embeddings (v2)          │
+│    ├─ Vector: 1024-dim            │
+│    └─ S07: Semantic search        │
+├────────────────────────────────────┤
+│ Amazon Rekognition (Vision)        │
+│ ├─ DetectLabels (S01)              │
+│ │  └─ Confidence: ≥80%            │
+│ └─ DetectModerationLabels (S02)    │
+│    └─ Content Safety              │
+├────────────────────────────────────┤
+│ Amazon Comprehend (NLP)            │
+│ ├─ DetectSentiment (S03)           │
+│ ├─ DetectDominantLanguage (S03)    │
+│ └─ Sentiment: +ive/-ive/neutral    │
+├────────────────────────────────────┤
+│ Amazon Translate (Neural MT)       │
+│ ├─ S04: ES ↔ EN translation       │
+│ ├─ Neural engine (higher quality) │
+│ └─ Auto-detect source language    │
+├────────────────────────────────────┤
+│ Amazon Polly (Speech)              │
+│ ├─ S05: Text-to-speech            │
+│ ├─ Voice: Lucia (Spanish neural)  │
+│ ├─ Format: MP3                    │
+│ └─ Engine: neural                 │
+└────────────────────────────────────┘
+
+CAPA 6: MONITORING
+┌─────────────────────────────────────┐
+│ CloudWatch                          │
+│ ├─ Logs: /aws/lambda/[function]    │
+│ ├─ Metrics: Invocations, Duration  │
+│ └─ Alarms: Error rate > 5%         │
+└─────────────────────────────────────┘
+```
+
+### Matriz de Servicios AWS por Función
+
+| Lambda | Tipo | Runtime | Servicios AWS | Timeout | Memory |
+|--------|------|---------|---------------|---------|--------|
+| **S00** | CRUD | Node 22 | DynamoDB, S3  | 30s | 256 MB |
+| **S01** | Vision | Python 3.12 | Rekognition, DDB | 30s | 512 MB |
+| **S02** | Vision | Python 3.12 | Rekognition, DDB | 30s | 512 MB |
+| **S03** | NLP | Python 3.12 | Comprehend, DDB | 30s | 512 MB |
+| **S04** | NLP | Python 3.12 | Translate, DDB | 30s | 512 MB |
+| **S05** | Speech | Python 3.12 | Polly, S3, DDB | 30s | 512 MB |
+| **S06** | GenAI | Python 3.12 | Bedrock, DDB | 60s | 512 MB |
+| **S07** | Search | Python 3.12 | Bedrock (embed), DDB | 30s | 512 MB |
+| **S08** | GenAI | Python 3.12 | Bedrock, all above | 60s | 1024 MB |
+
+### Regiones y Endpoints
+
+```
+✅ Región Primary: us-east-1
+   ├─ Lambda Functions: *.lambda-url.us-east-1.on.aws
+   ├─ DynamoDB: dynamodb.us-east-1.amazonaws.com
+   ├─ Bedrock: bedrock-runtime.us-east-1.amazonaws.com
+   ├─ Rekognition: rekognition.us-east-1.amazonaws.com
+   ├─ Comprehend: comprehend.us-east-1.amazonaws.com
+   ├─ Translate: translate.us-east-1.amazonaws.com
+   ├─ Polly: polly.us-east-1.amazonaws.com
+   ├─ S3: s3.us-east-1.amazonaws.com
+   ├─ CloudFront: d[...].cloudfront.net
+   └─ CloudWatch: logs.us-east-1.amazonaws.com
+
+NOTA: Bedrock model access debe habilitarse en AWS Console
+      → Bedrock > Model Access > Enable "Claude 3.5 Haiku"
+      (Se hace una sola vez por región)
+```
+
+---
+
 ## 🏗️ Arquitectura Completa
 
 ### Diagrama de Flujo
