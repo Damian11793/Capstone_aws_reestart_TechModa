@@ -31,7 +31,10 @@ table = boto3.resource("dynamodb").Table(PRODUCTS_TABLE)
 def _response(status, body):
     return {
         "statusCode": status,
-        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"},
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+        },
         "body": json.dumps(body, ensure_ascii=False),
     }
 
@@ -47,16 +50,59 @@ def _detect_language(text):
 def _analyze_one(text):
     lang = _detect_language(text)
     s = comprehend.detect_sentiment(Text=text, LanguageCode=lang)
+    sentiment = s["Sentiment"]
+    scores = {k: round(v, 4) for k, v in s["SentimentScore"].items()}
+
+    # Post-procesamiento: palabras clave para mejorar detección
+    text_lower = text.lower()
+    negative_keywords = ["no me gust", "horrible", "malo", "terrible", "no hay", "falta", "decepcionante", "decepción", "no funciona", "roto", "defectuoso"]
+    positive_keywords = ["me encanta", "excelente", "perfecto", "increíble", "genial", "maravilloso", "fantástico"]
+
+    # Si detecta palabras negativas y Comprehend dijo NEUTRAL o MIXED, forzar NEGATIVE
+    if any(kw in text_lower for kw in negative_keywords):
+        if sentiment in ["NEUTRAL", "MIXED"]:
+            sentiment = "NEGATIVE"
+            # Ajustar score: NEGATIVE debe ser el más alto
+            if scores.get("Negative", 0) < 0.6:
+                scores["Negative"] = 0.75
+                scores["Neutral"] = 0.15
+                scores["Mixed"] = 0.05
+                scores["Positive"] = 0.05
+
+    # Si detecta palabras positivas y Comprehend dijo NEUTRAL o MIXED, forzar POSITIVE
+    elif any(kw in text_lower for kw in positive_keywords):
+        if sentiment in ["NEUTRAL", "MIXED"]:
+            sentiment = "POSITIVE"
+            if scores.get("Positive", 0) < 0.6:
+                scores["Positive"] = 0.75
+                scores["Neutral"] = 0.15
+                scores["Mixed"] = 0.05
+                scores["Negative"] = 0.05
+
     return {
         "text": text,
         "language": lang,
-        "sentiment": s["Sentiment"],            # POSITIVE | NEGATIVE | NEUTRAL | MIXED
-        "scores": {k: round(v, 4) for k, v in s["SentimentScore"].items()},
+        "sentiment": sentiment,
+        "scores": scores,
     }
 
 
 def lambda_handler(event, context):
     print("Event:", json.dumps(event))
+
+    # Handle CORS preflight
+    if event.get("requestContext", {}).get("http", {}).get("method") == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST,OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+            "body": json.dumps({}),
+        }
+
     try:
         body = json.loads(event.get("body") or "{}")
     except json.JSONDecodeError:
@@ -97,3 +143,5 @@ def lambda_handler(event, context):
             "results": results,
         },
     )
+# S03 fix comprehend
+# S03 CORS fix

@@ -36,7 +36,7 @@ export function ProductCard({ product, onEdit, onDelete, isAdmin }: ProductCardP
           </span>
           <div className="flex items-center gap-1 text-sm text-gray-500">
             <Package className="w-4 h-4" />
-            <span>{product.stock ?? 0} disponibles</span>
+            <span>{product.quantity ?? product.stock ?? 0} disponibles</span>
           </div>
         </div>
         {isAdmin ? (

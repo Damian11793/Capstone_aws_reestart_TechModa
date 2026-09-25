@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "category": "product_search",
+    "metrics": [
+      "context_precision"
+    ],
+    "user_input": "\u00bfTienes sudaderas?",
+    "reference": "S\u00ed, tenemos sudadera negra en stock."
+  },
+  {
+    "id": 2,
+    "category": "product_search",
+    "metrics": [
+      "context_precision"
+    ],
+    "user_input": "\u00bfHay tenis disponibles?",
+    "reference": "S\u00ed, m\u00faltiples opciones de tenis."
+  },
+  {
+    "id": 3,
+    "category": "product_search",
+    "metrics": [
+      "context_precision"
+    ],
+    "user_input": "\u00bfQu\u00e9 accesorios tienen?",
+    "reference": "Bolsos, dijes y otros accesorios."
+  },
+  {
+    "id": 4,
+    "category": "product_search",
+    "metrics": [
+      "context_precision"
+    ],
+    "user_input": "\u00bfTienen ropa para hombre?",
+    "reference": "Cat\u00e1logo actual es principalmente ropa general."
+  },
+  {
+    "id": 5,
+    "category": "product_search",
+    "metrics": [
+      "context_precision"
+    ],
+    "user_input": "\u00bfOfertas en zapatos?",
+    "reference": "Ver precios actuales de tenis."
+  }
+]

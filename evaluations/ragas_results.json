@@ -1,0 +1,364 @@
+{
+  "timestamp": "2026-09-23T20:29:33.161465",
+  "s8_url": "https://7f6oiirakebphzw3ctqstxgf4e0zuust.lambda-url.us-east-1.on.aws",
+  "total_questions": 50,
+  "average_score": 0.4125,
+  "metrics": {
+    "context_precision": 0.0,
+    "faithfulness": 0.8,
+    "answer_relevance": 0.85,
+    "context_recall": 0.0
+  },
+  "case_details": [
+    {
+      "id": 1,
+      "category": "retrieval_precision",
+      "difficulty": "easy",
+      "tokens_used": 473,
+      "num_contexts": 3
+    },
+    {
+      "id": 2,
+      "category": "context_precision",
+      "difficulty": "easy",
+      "tokens_used": 374,
+      "num_contexts": 3
+    },
+    {
+      "id": 3,
+      "category": "answer_relevance",
+      "difficulty": "medium",
+      "tokens_used": 511,
+      "num_contexts": 3
+    },
+    {
+      "id": 4,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 465,
+      "num_contexts": 3
+    },
+    {
+      "id": 5,
+      "category": "context_precision",
+      "difficulty": "easy",
+      "tokens_used": 426,
+      "num_contexts": 3
+    },
+    {
+      "id": 6,
+      "category": "retrieval_precision",
+      "difficulty": "medium",
+      "tokens_used": 447,
+      "num_contexts": 3
+    },
+    {
+      "id": 7,
+      "category": "retrieval_precision",
+      "difficulty": "hard",
+      "tokens_used": 434,
+      "num_contexts": 3
+    },
+    {
+      "id": 8,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 423,
+      "num_contexts": 3
+    },
+    {
+      "id": 9,
+      "category": "hallucination_detection",
+      "difficulty": "hard",
+      "tokens_used": 452,
+      "num_contexts": 3
+    },
+    {
+      "id": 10,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 455,
+      "num_contexts": 3
+    },
+    {
+      "id": 11,
+      "category": "answer_relevance",
+      "difficulty": "medium",
+      "tokens_used": 559,
+      "num_contexts": 3
+    },
+    {
+      "id": 12,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 448,
+      "num_contexts": 3
+    },
+    {
+      "id": 13,
+      "category": "retrieval_precision",
+      "difficulty": "medium",
+      "tokens_used": 436,
+      "num_contexts": 3
+    },
+    {
+      "id": 14,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 433,
+      "num_contexts": 3
+    },
+    {
+      "id": 15,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 453,
+      "num_contexts": 3
+    },
+    {
+      "id": 16,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 444,
+      "num_contexts": 3
+    },
+    {
+      "id": 17,
+      "category": "hallucination_detection",
+      "difficulty": "hard",
+      "tokens_used": 486,
+      "num_contexts": 3
+    },
+    {
+      "id": 18,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 442,
+      "num_contexts": 3
+    },
+    {
+      "id": 19,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 509,
+      "num_contexts": 3
+    },
+    {
+      "id": 20,
+      "category": "retrieval_precision",
+      "difficulty": "easy",
+      "tokens_used": 387,
+      "num_contexts": 3
+    },
+    {
+      "id": 21,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 495,
+      "num_contexts": 3
+    },
+    {
+      "id": 22,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 448,
+      "num_contexts": 3
+    },
+    {
+      "id": 23,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 442,
+      "num_contexts": 3
+    },
+    {
+      "id": 24,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 474,
+      "num_contexts": 3
+    },
+    {
+      "id": 25,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 484,
+      "num_contexts": 3
+    },
+    {
+      "id": 26,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 488,
+      "num_contexts": 3
+    },
+    {
+      "id": 27,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 515,
+      "num_contexts": 3
+    },
+    {
+      "id": 28,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 477,
+      "num_contexts": 3
+    },
+    {
+      "id": 29,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 498,
+      "num_contexts": 3
+    },
+    {
+      "id": 30,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 461,
+      "num_contexts": 3
+    },
+    {
+      "id": 31,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 429,
+      "num_contexts": 3
+    },
+    {
+      "id": 32,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 453,
+      "num_contexts": 3
+    },
+    {
+      "id": 33,
+      "category": "context_precision",
+      "difficulty": "hard",
+      "tokens_used": 444,
+      "num_contexts": 3
+    },
+    {
+      "id": 34,
+      "category": "answer_relevance",
+      "difficulty": "medium",
+      "tokens_used": 461,
+      "num_contexts": 3
+    },
+    {
+      "id": 35,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 461,
+      "num_contexts": 3
+    },
+    {
+      "id": 36,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 425,
+      "num_contexts": 3
+    },
+    {
+      "id": 37,
+      "category": "context_precision",
+      "difficulty": "hard",
+      "tokens_used": 435,
+      "num_contexts": 3
+    },
+    {
+      "id": 38,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 522,
+      "num_contexts": 3
+    },
+    {
+      "id": 39,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 456,
+      "num_contexts": 3
+    },
+    {
+      "id": 40,
+      "category": "context_precision",
+      "difficulty": "medium",
+      "tokens_used": 507,
+      "num_contexts": 3
+    },
+    {
+      "id": 41,
+      "category": "hallucination_detection",
+      "difficulty": "hard",
+      "tokens_used": 554,
+      "num_contexts": 3
+    },
+    {
+      "id": 42,
+      "category": "hallucination_detection",
+      "difficulty": "hard",
+      "tokens_used": 531,
+      "num_contexts": 3
+    },
+    {
+      "id": 43,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 463,
+      "num_contexts": 3
+    },
+    {
+      "id": 44,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 548,
+      "num_contexts": 3
+    },
+    {
+      "id": 45,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 398,
+      "num_contexts": 3
+    },
+    {
+      "id": 46,
+      "category": "answer_relevance",
+      "difficulty": "hard",
+      "tokens_used": 469,
+      "num_contexts": 3
+    },
+    {
+      "id": 47,
+      "category": "hallucination_detection",
+      "difficulty": "easy",
+      "tokens_used": 423,
+      "num_contexts": 3
+    },
+    {
+      "id": 48,
+      "category": "context_precision",
+      "difficulty": "hard",
+      "tokens_used": 461,
+      "num_contexts": 3
+    },
+    {
+      "id": 49,
+      "category": "answer_relevance",
+      "difficulty": "medium",
+      "tokens_used": 452,
+      "num_contexts": 3
+    },
+    {
+      "id": 50,
+      "category": "hallucination_detection",
+      "difficulty": "medium",
+      "tokens_used": 488,
+      "num_contexts": 3
+    }
+  ]
+}

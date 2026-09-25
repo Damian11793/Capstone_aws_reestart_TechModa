@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Store, Settings, Search, Plus, Loader2 } from 'lucide-react';
+import { Store, Settings, Search, Plus, Loader2, BarChart3, TrendingUp } from 'lucide-react';
 import { ProductCard } from './components/ProductCard';
 import { ProductModal } from './components/ProductModal';
 import { ChatBot } from './components/ChatBot';
+import { EvaluationResults } from './components/EvaluationResults';
+import SentimentAnalysis from './components/SentimentAnalysis';
 import { useProducts } from './hooks/useProducts';
 import type { Product } from './lib/types';
 
@@ -12,6 +14,7 @@ function App() {
   const [editingProduct, setEditingProduct] = useState<Product | undefined>();
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('Todos');
+  const [activeTab, setActiveTab] = useState<'productos' | 'evaluacion' | 'sentimiento'>('productos');
 
   const { products, loading, error, createProduct, updateProduct, deleteProduct } = useProducts();
 
@@ -87,6 +90,48 @@ function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8 border-b overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('productos')}
+            className={`pb-2 px-4 font-medium transition-colors whitespace-nowrap ${
+              activeTab === 'productos'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            🛍️ Productos
+          </button>
+          <button
+            onClick={() => setActiveTab('sentimiento')}
+            className={`pb-2 px-4 font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'sentimiento'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4" />
+            Sentimientos
+          </button>
+          <button
+            onClick={() => setActiveTab('evaluacion')}
+            className={`pb-2 px-4 font-medium transition-colors flex items-center gap-2 whitespace-nowrap ${
+              activeTab === 'evaluacion'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-gray-600 hover:text-gray-900'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4" />
+            Evaluación
+          </button>
+        </div>
+
+        {activeTab === 'sentimiento' ? (
+          <SentimentAnalysis />
+        ) : activeTab === 'evaluacion' ? (
+          <EvaluationResults />
+        ) : (
+          <>
         <div className="mb-8 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
@@ -156,6 +201,8 @@ function App() {
               />
             ))}
           </div>
+        )}
+          </>
         )}
       </main>
 

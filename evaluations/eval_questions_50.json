@@ -1,0 +1,315 @@
+{
+  "evaluation": {
+    "name": "TechModa ChatBot RAG Evaluation",
+    "description": "50 preguntas para evaluar debilidades del RAG y precisión contextual",
+    "categories": {
+      "hallucination_detection": "Detectar si el modelo inventa información",
+      "retrieval_precision": "Evaluar si recupera productos correctos",
+      "context_precision": "Evaluar precisión del contexto y hechos específicos",
+      "answer_relevance": "Evaluar relevancia de la respuesta a la pregunta"
+    },
+    "total_questions": 50,
+    "questions": [
+      {
+        "id": 1,
+        "question": "¿Qué marcas de zapatillas tienen disponibles?",
+        "category": "retrieval_precision",
+        "difficulty": "easy"
+      },
+      {
+        "id": 2,
+        "question": "¿Cuál es la prenda más cara del catálogo?",
+        "category": "context_precision",
+        "difficulty": "easy"
+      },
+      {
+        "id": 3,
+        "question": "Recomendame algo para una boda formal",
+        "category": "answer_relevance",
+        "difficulty": "medium"
+      },
+      {
+        "id": 4,
+        "question": "¿Tienen zapatos de marca Nike?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 5,
+        "question": "¿Cuál es el precio exacto de los tenis blancos?",
+        "category": "context_precision",
+        "difficulty": "easy"
+      },
+      {
+        "id": 6,
+        "question": "¿Venden accesorios de cuero?",
+        "category": "retrieval_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 7,
+        "question": "Dame todas las prendas de la categoría Ropa",
+        "category": "retrieval_precision",
+        "difficulty": "hard"
+      },
+      {
+        "id": 8,
+        "question": "¿Tienen garantía en los productos?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 9,
+        "question": "¿Cuál es el descuento del 20% en vestidos?",
+        "category": "hallucination_detection",
+        "difficulty": "hard"
+      },
+      {
+        "id": 10,
+        "question": "¿Qué colores vienen los tenis?",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 11,
+        "question": "Quiero algo cómodo para el trabajo, ¿qué me recomiendas?",
+        "category": "answer_relevance",
+        "difficulty": "medium"
+      },
+      {
+        "id": 12,
+        "question": "¿Venden chaquetas de cuero genuino?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 13,
+        "question": "¿Cuántos bolsos diferentes tienen?",
+        "category": "retrieval_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 14,
+        "question": "¿Tienen política de devoluciones?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 15,
+        "question": "Dame opciones de ropa para clima frío",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 16,
+        "question": "¿Cuál producto tiene más stock?",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 17,
+        "question": "¿Qué prendas son sostenibles?",
+        "category": "hallucination_detection",
+        "difficulty": "hard"
+      },
+      {
+        "id": 18,
+        "question": "¿Hacen envíos internacionales?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 19,
+        "question": "¿Puedo combinar esta chaqueta con esos tenis?",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 20,
+        "question": "¿Qué vestidos tienen disponible ahora?",
+        "category": "retrieval_precision",
+        "difficulty": "easy"
+      },
+      {
+        "id": 21,
+        "question": "¿El bolso tote es resistente para viajes?",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 22,
+        "question": "¿Venden zapatos para deportes acuáticos?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 23,
+        "question": "Dame los 3 productos más baratos",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 24,
+        "question": "¿Cuántos accesorios están agotados?",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 25,
+        "question": "¿Venden ropa de talla XL?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 26,
+        "question": "¿Qué complementos van bien con un vestido formal?",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 27,
+        "question": "¿Los tenis vienen con garantía de durabilidad?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 28,
+        "question": "¿Tienen descuentos para compras en volumen?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 29,
+        "question": "¿Qué puedo usar para ir a una cita casual?",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 30,
+        "question": "¿El bolso de lona es lavable?",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 31,
+        "question": "¿Cuáles son sus horarios de atención?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 32,
+        "question": "¿Aceptan tarjetas de crédito internacionales?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 33,
+        "question": "¿La chaqueta denim viene en otros colores?",
+        "category": "context_precision",
+        "difficulty": "hard"
+      },
+      {
+        "id": 34,
+        "question": "¿Qué prenda es mejor para primavera?",
+        "category": "answer_relevance",
+        "difficulty": "medium"
+      },
+      {
+        "id": 35,
+        "question": "¿Hay productos descontinuados?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 36,
+        "question": "¿Venden uniformes escolares?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 37,
+        "question": "¿Cuál es la diferencia de precio entre el vestido más caro y el más barato?",
+        "category": "context_precision",
+        "difficulty": "hard"
+      },
+      {
+        "id": 38,
+        "question": "¿Qué accesorios me recomiendas para complementar esta chaqueta?",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 39,
+        "question": "¿Fabrican sus propios productos o venden de terceros?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 40,
+        "question": "¿Cuántos productos del catálogo están en promoción?",
+        "category": "context_precision",
+        "difficulty": "medium"
+      },
+      {
+        "id": 41,
+        "question": "¿Los tenis son aptos para correr maratones?",
+        "category": "hallucination_detection",
+        "difficulty": "hard"
+      },
+      {
+        "id": 42,
+        "question": "¿Qué ropa es mejor para alguien que tiene alergias?",
+        "category": "hallucination_detection",
+        "difficulty": "hard"
+      },
+      {
+        "id": 43,
+        "question": "¿Cuál es el producto más vendido?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 44,
+        "question": "¿Me recomiendas un look completo con 3 piezas?",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 45,
+        "question": "¿Venden repuestos o refacciones?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      },
+      {
+        "id": 46,
+        "question": "¿Qué producto tiene la mejor relación precio-calidad?",
+        "category": "answer_relevance",
+        "difficulty": "hard"
+      },
+      {
+        "id": 47,
+        "question": "¿Aceptan devoluciones después de 60 días?",
+        "category": "hallucination_detection",
+        "difficulty": "easy"
+      },
+      {
+        "id": 48,
+        "question": "¿Listame todos los productos con stock menor a 20 unidades",
+        "category": "context_precision",
+        "difficulty": "hard"
+      },
+      {
+        "id": 49,
+        "question": "¿Cuál es la mejor opción si tengo presupuesto limitado?",
+        "category": "answer_relevance",
+        "difficulty": "medium"
+      },
+      {
+        "id": 50,
+        "question": "¿Venden ropa de diseñadores famosos?",
+        "category": "hallucination_detection",
+        "difficulty": "medium"
+      }
+    ]
+  }
+}

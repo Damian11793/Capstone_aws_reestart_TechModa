@@ -86,6 +86,20 @@ def _path_id(event):
 
 def lambda_handler(event, context):
     print("Event:", json.dumps(event))
+
+    # Handle CORS preflight
+    if event.get("requestContext", {}).get("http", {}).get("method") == "OPTIONS":
+        return {
+            "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "POST,OPTIONS",
+                "Access-Control-Allow-Headers": "Content-Type",
+            },
+            "body": json.dumps({}),
+        }
+
     product_id = _path_id(event)
     if not product_id:
         return _response(400, {"error": "Falta el productId en la ruta."})
@@ -141,3 +155,4 @@ def lambda_handler(event, context):
             "usage": usage,  # inputTokens / outputTokens -> útil para costos (S10)
         },
     )
+# S06 OPTIONS CORS fix

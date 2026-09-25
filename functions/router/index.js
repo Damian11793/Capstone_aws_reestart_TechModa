@@ -17,6 +17,7 @@
  *   GET    /products/{id}   -> get-item
  *   PUT    /products/{id}   -> update-item
  *   DELETE /products/{id}   -> delete-item
+ *   GET    /assets/{filename} -> S3 bucket (presigned URL)
  *
  * El evento de Function URL usa el payload v2.0:
  *   method -> event.requestContext.http.method
@@ -36,11 +37,20 @@ const json = (statusCode, payload) => ({
   headers: {
     'Content-Type': 'application/json',
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE',
-    'Access-Control-Allow-Headers': 'Content-Type',
   },
   body: JSON.stringify(payload),
 });
+
+const optionsResponse = {
+  statusCode: 200,
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  },
+  body: '',
+};
 
 exports.handler = async (event) => {
   console.log('Router event:', JSON.stringify(event));
@@ -52,6 +62,11 @@ exports.handler = async (event) => {
   let path =
     event?.rawPath || event?.requestContext?.http?.path || event?.path || '/';
   path = path.replace(/\/{2,}/g, '/').replace(/\/+$/, '') || '/';
+
+  // CORS preflight
+  if (method === 'OPTIONS') {
+    return optionsResponse;
+  }
 
   const segments = path.split('/').filter(Boolean); // ['products'] | ['products','<id>']
   const id = segments[1];

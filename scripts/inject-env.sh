@@ -91,7 +91,17 @@ echo ""
 OUTPUT_FILE="$DIST_DIR/env-config.js"
 
 echo "🔧 Generating runtime configuration..."
-sed "s|%%VITE_API_URL%%|$API_URL|g" "$TEMPLATE_FILE" > "$OUTPUT_FILE"
+
+# Get function URLs from CloudFormation stack
+STACK_NAME="techmoda-ai-jorge-damian-diaz-v2"
+REGION="us-east-1"
+
+echo "   Fetching function URLs from stack: $STACK_NAME"
+S8_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" --query 'Stacks[0].Outputs[?OutputKey==`ShoppingAssistantUrl`].OutputValue' --output text 2>/dev/null | sed 's|/$||')
+S3_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" --query 'Stacks[0].Outputs[?OutputKey==`AnalyzeSentimentUrl`].OutputValue' --output text 2>/dev/null | sed 's|/$||')
+S5_URL=$(aws cloudformation describe-stacks --stack-name "$STACK_NAME" --region "$REGION" --query 'Stacks[0].Outputs[?OutputKey==`SynthesizeVoiceUrl`].OutputValue' --output text 2>/dev/null | sed 's|/$||')
+
+sed "s|%%VITE_API_URL%%|$API_URL|g; s|%%VITE_S8_URL%%|$S8_URL|g; s|%%VITE_S3_URL%%|$S3_URL|g; s|%%VITE_S5_URL%%|$S5_URL|g" "$TEMPLATE_FILE" > "$OUTPUT_FILE"
 
 # Verify the file was created
 if [ ! -f "$OUTPUT_FILE" ]; then

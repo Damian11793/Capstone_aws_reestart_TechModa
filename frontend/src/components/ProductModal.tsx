@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, Globe } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { Product } from '../lib/types';
 
@@ -18,6 +18,34 @@ export function ProductModal({ isOpen, onClose, onSave, product }: ProductModalP
     stock: '',
     imageUrl: '',
   });
+  const [translating, setTranslating] = useState(false);
+
+  const S4_URL = (window as any).__ENV?.VITE_S4_URL || 'https://nh5x3edwbxofzuipvafnshzcxq0bzdhs.lambda-url.us-east-1.on.aws/';
+
+  const handleTranslate = async () => {
+    if (!product) return;
+
+    setTranslating(true);
+    try {
+      const response = await fetch(`${S4_URL.replace(/\/$/, '')}/products/${product.productId}/translate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ target: 'en' })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        alert(`✅ Traducción guardada:\n\n🇬🇧 ${data.translation.name}\n${data.translation.description}`);
+      } else {
+        alert('❌ Error al traducir');
+      }
+    } catch (error) {
+      console.error('Translate error:', error);
+      alert('❌ Error de conexión');
+    } finally {
+      setTranslating(false);
+    }
+  };
 
   useEffect(() => {
     if (product) {
@@ -163,6 +191,17 @@ export function ProductModal({ isOpen, onClose, onSave, product }: ProductModalP
             />
           </div>
           <div className="flex gap-3 pt-4">
+            {product && (
+              <button
+                type="button"
+                onClick={handleTranslate}
+                disabled={translating}
+                className="px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50 transition-colors font-medium flex items-center gap-2 disabled:opacity-50"
+              >
+                <Globe className="w-4 h-4" />
+                {translating ? 'Traduciendo...' : 'Traducir a EN'}
+              </button>
+            )}
             <button
               type="button"
               onClick={onClose}

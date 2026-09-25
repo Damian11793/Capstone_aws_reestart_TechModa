@@ -66,10 +66,6 @@ Resources:
             TableName: !Ref ProductsTable
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "GET", "POST", "PUT", "DELETE" ]
-          AllowHeaders: [ "Content-Type" ]
 
   # ---------------------------------------------------------------------------
   # Frontend estático (S3 — sin CloudFront por permission boundary).
@@ -124,10 +120,6 @@ Resources:
           LABEL_MAX_LABELS: "15"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S02 · Rekognition DetectModerationLabels + alt-text ----
   ModerateImageFunction:
@@ -156,10 +148,6 @@ Resources:
           MODERATION_MIN_CONFIDENCE: "60"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S03 · Comprehend DetectSentiment ----
   AnalyzeSentimentFunction:
@@ -181,10 +169,6 @@ Resources:
               Resource: "*"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S04 · Translate Multilingue ----
   TranslateCatalogFunction:
@@ -206,10 +190,6 @@ Resources:
               Resource: "*"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S05 · Polly Texto a Voz ----
   AudioBucket:
@@ -249,10 +229,6 @@ Resources:
           AUDIO_BUCKET: !Ref AudioBucket
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S06 · Bedrock Generación de Descripciones ----
   GenerateDescriptionFunction:
@@ -280,10 +256,6 @@ Resources:
           BEDROCK_TEMPERATURE: "0.7"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S07 · Bedrock Embeddings (Búsqueda Semántica / RAG) ----
   IndexEmbeddingsFunction:
@@ -309,10 +281,6 @@ Resources:
           EMBED_MODEL_ID: amazon.titan-embed-text-v2:0
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   SemanticSearchFunction:
     Type: AWS::Serverless::Function
@@ -338,10 +306,6 @@ Resources:
           SEARCH_TOP_K: "5"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S08 · Bedrock Chatbot (RAG + Conversación) ----
   ShoppingAssistantFunction:
@@ -376,10 +340,6 @@ Resources:
           BEDROCK_GUARDRAIL_VERSION: "1"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "POST" ]
-          AllowHeaders: [ "Content-Type" ]
 
   # ============================================================================
   # S10 · Gobernanza: Tags de costo + Alarma de billing + Log group de invocación

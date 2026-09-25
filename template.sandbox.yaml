@@ -47,10 +47,6 @@ Resources:
             TableName: !Ref ProductsTable
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S01 · Rekognition DetectLabels ----
   EnrichLabelsFunction:
@@ -132,14 +128,12 @@ Resources:
             TableName: !Ref ProductsTable
         - Statement:
             - Effect: Allow
-              Action: comprehend:DetectSentiment
+              Action:
+                - comprehend:DetectSentiment
+                - comprehend:DetectDominantLanguage
               Resource: "*"
       FunctionUrlConfig:
         AuthType: NONE
-        Cors:
-          AllowOrigins: [ "*" ]
-          AllowMethods: [ "*" ]
-          AllowHeaders: [ "*" ]
 
   # ---- S05 · Polly SynthesizeSpeech (+ bucket de audio efímero) ----
   AudioBucket:
@@ -180,10 +174,146 @@ Resources:
           AUDIO_BUCKET: !Ref AudioBucket
       FunctionUrlConfig:
         AuthType: NONE
+
+  # ---- S06 · Generate Description (GenAI descriptions) ----
+  GenerateDescriptionFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-GenerateDescription
+      Description: S6 - Generar descripciones de producto (Bedrock / GenAI)
+      CodeUri: sessions/S06-bedrock-descripciones/functions/generate-description
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 60
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+        - Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                - !Sub arn:${AWS::Partition}:bedrock:*::foundation-model/*
+                - !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:inference-profile/*
+      Environment:
+        Variables:
+          BEDROCK_MODEL_ID: us.anthropic.claude-haiku-4-5-20251001-v1:0
+          BEDROCK_MAX_TOKENS: "300"
+          BEDROCK_TEMPERATURE: "0.7"
+      FunctionUrlConfig:
+        AuthType: NONE
+
+  # ---- S04 · Translate Catalog (multiidioma) ----
+  TranslateCatalogFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-TranslateCatalog
+      Description: S4 - Catálogo multilingüe ES/EN (Amazon Translate)
+      CodeUri: sessions/S04-translate-multilang/functions/translate-catalog
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - translate:TranslateText
+                - comprehend:DetectDominantLanguage
+              Resource: "*"
+      FunctionUrlConfig:
+        AuthType: NONE
+
+  # ---- S07 · Semantic Search (embeddings) ----
+  SemanticSearchFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-SemanticSearch
+      Description: S7 - Búsqueda semántica (embeddings + índice)
+      CodeUri: sessions/S07-bedrock-rag-busqueda/functions/semantic-search
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 60
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+        - Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                - !Sub arn:${AWS::Partition}:bedrock:*::foundation-model/*
+                - !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:inference-profile/*
+      Environment:
+        Variables:
+          EMBED_MODEL_ID: amazon.titan-embed-text-v2:0
+          ASSISTANT_TOP_K: "3"
+      FunctionUrlConfig:
+        AuthType: NONE
         Cors:
           AllowOrigins: [ "*" ]
           AllowMethods: [ "*" ]
           AllowHeaders: [ "*" ]
+
+  # Index Embeddings endpoint for S07
+  IndexEmbeddingsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-IndexEmbeddings
+      Description: S7 - Generar embeddings de productos
+      CodeUri: sessions/S07-bedrock-rag-busqueda/functions/index-embeddings
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 60
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref ProductsTable
+        - Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                - !Sub arn:${AWS::Partition}:bedrock:*::foundation-model/*
+                - !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:inference-profile/*
+      Environment:
+        Variables:
+          EMBED_MODEL_ID: amazon.titan-embed-text-v2:0
+      FunctionUrlConfig:
+        AuthType: NONE
+        Cors:
+          AllowOrigins: [ "*" ]
+          AllowMethods: [ "*" ]
+          AllowHeaders: [ "*" ]
+
+  # ---- S08 · Shopping Assistant (RAG chatbot) ----
+  ShoppingAssistantFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: !Sub ${AWS::StackName}-ShoppingAssistant
+      Description: S8 - Asistente de compras (RAG + Bedrock)
+      CodeUri: sessions/S08-bedrock-chatbot/functions/shopping-assistant
+      Handler: app.lambda_handler
+      Runtime: python3.12
+      Timeout: 60
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref ProductsTable
+        - Statement:
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource:
+                - !Sub arn:${AWS::Partition}:bedrock:*::foundation-model/*
+                - !Sub arn:${AWS::Partition}:bedrock:*:${AWS::AccountId}:inference-profile/*
+        - Statement:
+            - Effect: Allow
+              Action: rekognition:DetectLabels
+              Resource: "*"
+      Environment:
+        Variables:
+          EMBED_MODEL_ID: amazon.titan-embed-text-v2:0
+          BEDROCK_MODEL_ID: us.anthropic.claude-haiku-4-5-20251001-v1:0
+          ASSISTANT_TOP_K: "3"
+          BEDROCK_MAX_TOKENS: "400"
+          S6_URL: !GetAtt GenerateDescriptionFunctionUrl.FunctionUrl
+      FunctionUrlConfig:
+        AuthType: NONE
 
   # ---- S10 · gobernanza: log group de invocación ----
   # (La alarma de billing no la crea este stack — métrica AWS/Billing, se crea a mano en consola/Budgets; ver GUIA de S10.)
@@ -209,6 +339,21 @@ Outputs:
   SynthesizeVoiceUrl:
     Description: S5 Function URL
     Value: !GetAtt SynthesizeVoiceFunctionUrl.FunctionUrl
+  TranslateCatalogUrl:
+    Description: S4 Function URL
+    Value: !GetAtt TranslateCatalogFunctionUrl.FunctionUrl
+  GenerateDescriptionUrl:
+    Description: S6 Function URL
+    Value: !GetAtt GenerateDescriptionFunctionUrl.FunctionUrl
+  SemanticSearchUrl:
+    Description: S7 Semantic Search Function URL
+    Value: !GetAtt SemanticSearchFunctionUrl.FunctionUrl
+  IndexEmbeddingsUrl:
+    Description: S7 Index Embeddings Function URL
+    Value: !GetAtt IndexEmbeddingsFunctionUrl.FunctionUrl
+  ShoppingAssistantUrl:
+    Description: S8 Shopping Assistant Function URL
+    Value: !GetAtt ShoppingAssistantFunctionUrl.FunctionUrl
   ProductsTableName:
     Description: Tabla DynamoDB de productos
     Value: !Ref ProductsTable
